@@ -23,3 +23,6 @@ experiments/generated_problems/*
 # Operating system files
 .DS_Store
 Thumbs.db
+experiments/generated_problems/ros_runs/
+experiments/raw_outputs/ros_runs/
+experiments/results/ros_runs/

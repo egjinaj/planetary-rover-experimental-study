@@ -1,0 +1,14 @@
+int32 dataset_count
+string memory_level
+string corruption_level
+int32 seed
+float64 timeout_seconds
+---
+string instance_id
+string status
+bool solved
+float64 wall_runtime_seconds
+float64 plan_makespan
+int32 action_count
+int32 move_actions
+string error_message
