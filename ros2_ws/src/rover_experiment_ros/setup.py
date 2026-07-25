@@ -19,7 +19,7 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Endri",
-    maintainer_email="endri@example.com",
+    maintainer_email="endrigjinaj49@gmail.com",
     description=(
         "ROS 2 service and client for PDDL+ rover experiments."
     ),

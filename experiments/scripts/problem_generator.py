@@ -104,27 +104,6 @@ def create_map(
     return connection_lines, travel_time_lines
 
 
-def choose_safe_indices(
-    dataset_count: int,
-    safe_fraction: float,
-    rng: random.Random,
-) -> set[int]:
-    """Choose a controlled number of theoretically safe datasets."""
-
-    target_safe_count = int(
-        dataset_count * safe_fraction + 0.5
-    )
-
-    target_safe_count = max(
-        0,
-        min(dataset_count, target_safe_count),
-    )
-
-    indices = list(range(dataset_count))
-    rng.shuffle(indices)
-
-    return set(indices[:target_safe_count])
-
 
 def generate_problem(
     config: dict[str, Any],

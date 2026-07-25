@@ -7,7 +7,7 @@
     Custom ROS 2 interfaces for planetary-rover planning experiments.
   </description>
 
-  <maintainer email="endri@example.com">Endri</maintainer>
+  <maintainer email="endrigjinaj49@gmail.com">Endri Gjinaj</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
