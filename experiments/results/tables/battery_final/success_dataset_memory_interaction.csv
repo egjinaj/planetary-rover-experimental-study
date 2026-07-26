@@ -1,0 +1,10 @@
+dataset_count,memory_level,instances,solved,unsolvable,success_rate,success_percent
+2,high,15,15,0,1.0,100.0
+2,low,15,15,0,1.0,100.0
+2,medium,15,15,0,1.0,100.0
+3,high,15,15,0,1.0,100.0
+3,low,15,6,9,0.4,40.0
+3,medium,15,15,0,1.0,100.0
+4,high,15,15,0,1.0,100.0
+4,low,15,0,15,0.0,0.0
+4,medium,15,12,3,0.8,80.0

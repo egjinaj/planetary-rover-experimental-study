@@ -1,0 +1,10 @@
+analysis,test,statistic,p_value,degrees_of_freedom,effect_size_name,effect_size,sample_size,notes
+Feasibility association: dataset_count,Chi-square test of independence,22.5,1.3007297654067617e-05,2,Cramer's V,0.408248290463863,135,Minimum expected count: 9.000
+Feasibility association: memory_level,Chi-square test of independence,47.5,4.847368706270258e-11,2,Cramer's V,0.5931710140017395,135,Minimum expected count: 9.000
+Feasibility association: corruption_level,Chi-square test of independence,0.0,1.0,2,Cramer's V,0.0,135,Minimum expected count: 9.000
+Standard runtime difference: dataset_count,Kruskal-Wallis,100.99320261437913,1.1738286287880565e-22,2,Epsilon-squared,0.7499485046543873,135,Includes standard timeout runtimes near 30 seconds.
+Standard runtime difference: memory_level,Kruskal-Wallis,7.178300653594761,0.02762178995010124,2,Epsilon-squared,0.03922955040602091,135,Includes standard timeout runtimes near 30 seconds.
+Standard runtime difference: corruption_level,Kruskal-Wallis,4.910413943355081,0.08584542603051316,2,Epsilon-squared,0.022048590479962736,135,Includes standard timeout runtimes near 30 seconds.
+Matched memory comparison: move_actions,Friedman,35.29230769230767,2.1695654581484155e-08,2,Kendall's W,0.8402930402930399,21,"Complete matched blocks where low, medium, and high memory variants were all solved."
+Matched memory comparison: energy_used,Friedman,35.29230769230767,2.1695654581484155e-08,2,Kendall's W,0.8402930402930399,21,"Complete matched blocks where low, medium, and high memory variants were all solved."
+Matched memory comparison: plan_makespan,Friedman,34.23880597014924,3.6739881406587457e-08,2,Kendall's W,0.8152096659559342,21,"Complete matched blocks where low, medium, and high memory variants were all solved."

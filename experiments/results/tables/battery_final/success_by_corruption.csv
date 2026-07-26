@@ -1,0 +1,4 @@
+corruption_level,instances,solved,unsolvable,success_rate,success_percent
+low,45,36,9,0.8,80.0
+medium,45,36,9,0.8,80.0
+high,45,36,9,0.8,80.0

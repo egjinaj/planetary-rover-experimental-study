@@ -1,0 +1,145 @@
+{
+  "status": "solved",
+  "solved": true,
+  "reported_plan_length": 51,
+  "reported_elapsed_time": 23.0,
+  "plan_makespan": 23.0,
+  "action_count": 16,
+  "move_actions": 8,
+  "collect_actions": 4,
+  "offload_actions": 4,
+  "waiting_periods": 9,
+  "total_waiting_time": 23.0,
+  "actions": [
+    {
+      "timestamp": 0.0,
+      "action": "(start-move rover1 base site1)"
+    },
+    {
+      "timestamp": 3.0,
+      "action": "(start-move rover1 site1 site2)"
+    },
+    {
+      "timestamp": 5.0,
+      "action": "(collect-data rover1 data2 site2)"
+    },
+    {
+      "timestamp": 5.0,
+      "action": "(start-move rover1 site2 site3)"
+    },
+    {
+      "timestamp": 7.0,
+      "action": "(collect-data rover1 data3 site3)"
+    },
+    {
+      "timestamp": 10.0,
+      "action": "(start-move rover1 site3 site4)"
+    },
+    {
+      "timestamp": 13.0,
+      "action": "(collect-data rover1 data4 site4)"
+    },
+    {
+      "timestamp": 13.0,
+      "action": "(start-move rover1 site4 site3)"
+    },
+    {
+      "timestamp": 16.0,
+      "action": "(start-move rover1 site3 site2)"
+    },
+    {
+      "timestamp": 18.0,
+      "action": "(start-move rover1 site2 site1)"
+    },
+    {
+      "timestamp": 20.0,
+      "action": "(collect-data rover1 data1 site1)"
+    },
+    {
+      "timestamp": 20.0,
+      "action": "(start-move rover1 site1 base)"
+    },
+    {
+      "timestamp": 23.0,
+      "action": "(offload-data rover1 data1 base)"
+    },
+    {
+      "timestamp": 23.0,
+      "action": "(offload-data rover1 data2 base)"
+    },
+    {
+      "timestamp": 23.0,
+      "action": "(offload-data rover1 data3 base)"
+    },
+    {
+      "timestamp": 23.0,
+      "action": "(offload-data rover1 data4 base)"
+    }
+  ],
+  "waits": [
+    {
+      "start_time": 0.0,
+      "end_time": 3.0,
+      "duration": 3.0
+    },
+    {
+      "start_time": 3.0,
+      "end_time": 5.0,
+      "duration": 2.0
+    },
+    {
+      "start_time": 5.0,
+      "end_time": 7.0,
+      "duration": 2.0
+    },
+    {
+      "start_time": 7.0,
+      "end_time": 10.0,
+      "duration": 3.0
+    },
+    {
+      "start_time": 10.0,
+      "end_time": 13.0,
+      "duration": 3.0
+    },
+    {
+      "start_time": 13.0,
+      "end_time": 16.0,
+      "duration": 3.0
+    },
+    {
+      "start_time": 16.0,
+      "end_time": 18.0,
+      "duration": 2.0
+    },
+    {
+      "start_time": 18.0,
+      "end_time": 20.0,
+      "duration": 2.0
+    },
+    {
+      "start_time": 20.0,
+      "end_time": 23.0,
+      "duration": 3.0
+    }
+  ],
+  "domain": "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/planning_models/pddl_plus/domain-memory-rover-battery.pddl",
+  "problem": "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/experiments/generated_problems/battery_final_unseen/rover-battery-n4-mem-high-corr-low-seed-13.pddl",
+  "output_file": "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/experiments/raw_outputs/battery_final_unseen_extended/rover-battery-n4-mem-high-corr-low-seed-13.txt",
+  "planner": "sat-hadd",
+  "timeout_seconds": 120.0,
+  "wall_runtime_seconds": 35.325328,
+  "return_code": 0,
+  "command": [
+    "java",
+    "-jar",
+    "/home/endri/enhsp/ENHSP-Public/enhsp-dist/enhsp.jar",
+    "-o",
+    "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/planning_models/pddl_plus/domain-memory-rover-battery.pddl",
+    "-f",
+    "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/experiments/generated_problems/battery_final_unseen/rover-battery-n4-mem-high-corr-low-seed-13.pddl",
+    "-planner",
+    "sat-hadd"
+  ],
+  "instance_id": "rover-battery-n4-mem-high-corr-low-seed-13"
+}

@@ -1,0 +1,4 @@
+instance_id,standard_status,standard_runtime_seconds,classification_status,classification_runtime_seconds,plan_makespan
+rover-battery-n4-mem-low-corr-low-seed-12,timeout,30.107204,unsolvable,73.7278,
+rover-battery-n4-mem-low-corr-low-seed-14,timeout,30.109172,unsolvable,77.297805,
+rover-battery-n4-mem-high-corr-low-seed-13,timeout,30.119575,solved,35.325328,23.0

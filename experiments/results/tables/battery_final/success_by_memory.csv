@@ -1,0 +1,4 @@
+memory_level,instances,solved,unsolvable,success_rate,success_percent
+low,45,21,24,0.4666666666666667,46.666666666666664
+medium,45,42,3,0.9333333333333333,93.33333333333333
+high,45,45,0,1.0,100.0
