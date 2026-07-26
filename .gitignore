@@ -26,3 +26,6 @@ Thumbs.db
 experiments/generated_problems/ros_runs/
 experiments/raw_outputs/ros_runs/
 experiments/results/ros_runs/
+experiments/generated_problems/ros_battery_runs/
+experiments/raw_outputs/ros_battery_runs/
+experiments/results/ros_battery_runs/
