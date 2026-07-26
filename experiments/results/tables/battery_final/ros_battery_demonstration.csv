@@ -1,0 +1,2 @@
+instance_id,status,solved,wall_runtime_seconds,plan_makespan,action_count,move_actions,battery_capacity,energy_used,battery_remaining,battery_feasible,error_message
+rover-battery-n3-mem-medium-corr-medium-seed-0,solved,True,0.476625,28.0,16,10,40.0,26.0,14.0,True,
