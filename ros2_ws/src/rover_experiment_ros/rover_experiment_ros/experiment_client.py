@@ -109,6 +109,20 @@ def main() -> None:
             ),
             "action_count": response.action_count,
             "move_actions": response.move_actions,
+            "battery_capacity": response.battery_capacity,
+            "energy_used": (
+                response.energy_used
+                if response.energy_used >= 0
+                else None
+            ),
+            "battery_remaining": (
+                response.battery_remaining
+                if response.battery_remaining >= 0
+                else None
+            ),
+            "battery_feasible": (
+                response.battery_feasible
+            ),
             "error_message": response.error_message,
         }
 

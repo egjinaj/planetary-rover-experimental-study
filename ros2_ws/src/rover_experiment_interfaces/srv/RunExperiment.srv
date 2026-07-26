@@ -11,4 +11,8 @@ float64 wall_runtime_seconds
 float64 plan_makespan
 int32 action_count
 int32 move_actions
+float64 battery_capacity
+float64 energy_used
+float64 battery_remaining
+bool battery_feasible
 string error_message

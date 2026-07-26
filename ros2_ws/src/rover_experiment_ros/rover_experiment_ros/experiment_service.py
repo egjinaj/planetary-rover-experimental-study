@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ROS 2 service for running one timed-rover planning experiment."""
+"""ROS 2 service for running one battery-rover planning experiment."""
 
 from __future__ import annotations
 
@@ -100,28 +100,28 @@ class RoverExperimentService(Node):
 
         self.config_path = (
             self.project_root
-            / "experiments/config/experiment_config.json"
+            / "experiments/config/experiment_config_battery.json"
         )
 
         self.domain_path = (
             self.project_root
             / "planning_models/pddl_plus/"
-            "domain-memory-rover-experimental.pddl"
+            "domain-memory-rover-battery.pddl"
         )
 
         self.generated_directory = (
             self.project_root
-            / "experiments/generated_problems/ros_runs"
+            / "experiments/generated_problems/ros_battery_runs"
         )
 
         self.raw_output_directory = (
             self.project_root
-            / "experiments/raw_outputs/ros_runs"
+            / "experiments/raw_outputs/ros_battery_runs"
         )
 
         self.result_directory = (
             self.project_root
-            / "experiments/results/ros_runs"
+            / "experiments/results/ros_battery_runs"
         )
 
         self.generated_directory.mkdir(
@@ -191,13 +191,13 @@ class RoverExperimentService(Node):
         self,
         request: RunExperiment.Request,
     ) -> dict[str, Any]:
-        """Generate one timed PDDL+ problem."""
+        """Generate one battery-constrained PDDL+ problem."""
 
         command = [
             sys.executable,
             str(self.generator_script),
             "--model",
-            "timed",
+            "battery",
             "--datasets",
             str(request.dataset_count),
             "--memory",
@@ -255,6 +255,8 @@ class RoverExperimentService(Node):
             str(raw_output_path),
             "--timeout",
             str(timeout_seconds),
+            "--planner",
+            "sat-hadd",
         ]
 
         process = subprocess.run(
@@ -270,6 +272,82 @@ class RoverExperimentService(Node):
             process,
             "planner_runner.py",
         )
+
+    @staticmethod
+    def calculate_battery_metrics(
+        generation: dict[str, Any],
+        planner_result: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Calculate battery use from explicit movement actions."""
+
+        battery_capacity = float(
+            generation.get("battery_capacity", 0.0)
+            or 0.0
+        )
+
+        if planner_result.get("status") != "solved":
+            return {
+                "battery_capacity": battery_capacity,
+                "energy_used": None,
+                "battery_remaining": None,
+                "battery_feasible": False,
+            }
+
+        edge_lookup: dict[
+            tuple[str, str],
+            float,
+        ] = {}
+
+        for edge in generation.get("terrain_edges", []):
+            start = str(edge["from"]).lower()
+            end = str(edge["to"]).lower()
+            cost = float(edge["energy_cost"])
+
+            edge_lookup[(start, end)] = cost
+            edge_lookup[(end, start)] = cost
+
+        energy_used = 0.0
+
+        for record in planner_result.get("actions", []):
+            action = str(
+                record.get("action", "")
+            ).strip().lower()
+
+            if not (
+                action.startswith("(start-move ")
+                or action.startswith("(move ")
+            ):
+                continue
+
+            parts = action.strip("()").split()
+
+            if len(parts) < 4:
+                raise RuntimeError(
+                    f"Could not parse movement action: {action}"
+                )
+
+            edge = (parts[2], parts[3])
+
+            if edge not in edge_lookup:
+                raise RuntimeError(
+                    f"Missing terrain energy cost for "
+                    f"{edge[0]} -> {edge[1]}."
+                )
+
+            energy_used += edge_lookup[edge]
+
+        battery_remaining = (
+            battery_capacity - energy_used
+        )
+
+        return {
+            "battery_capacity": battery_capacity,
+            "energy_used": energy_used,
+            "battery_remaining": battery_remaining,
+            "battery_feasible": (
+                battery_remaining >= -1e-9
+            ),
+        }
 
     def run_experiment_callback(
         self,
@@ -309,6 +387,15 @@ class RoverExperimentService(Node):
                 problem_path=problem_path,
                 raw_output_path=raw_output_path,
                 timeout_seconds=request.timeout_seconds,
+            )
+
+            battery_metrics = self.calculate_battery_metrics(
+                generation=generation,
+                planner_result=planner_result,
+            )
+
+            planner_result["battery_metrics"] = (
+                battery_metrics
             )
 
             result_path = (
@@ -356,6 +443,33 @@ class RoverExperimentService(Node):
                 or 0
             )
 
+            response.battery_capacity = float(
+                battery_metrics["battery_capacity"]
+            )
+
+            response.energy_used = (
+                float(battery_metrics["energy_used"])
+                if battery_metrics["energy_used"]
+                is not None
+                else -1.0
+            )
+
+            response.battery_remaining = (
+                float(
+                    battery_metrics[
+                        "battery_remaining"
+                    ]
+                )
+                if battery_metrics[
+                    "battery_remaining"
+                ] is not None
+                else -1.0
+            )
+
+            response.battery_feasible = bool(
+                battery_metrics["battery_feasible"]
+            )
+
             response.error_message = str(
                 planner_result.get("error_message", "")
                 or ""
@@ -382,6 +496,10 @@ class RoverExperimentService(Node):
             response.plan_makespan = -1.0
             response.action_count = 0
             response.move_actions = 0
+            response.battery_capacity = 0.0
+            response.energy_used = -1.0
+            response.battery_remaining = -1.0
+            response.battery_feasible = False
             response.error_message = (
                 f"{type(error).__name__}: {error}"
             )
