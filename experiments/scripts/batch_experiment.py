@@ -38,6 +38,14 @@ RESULT_FIELDS = [
     "total_dataset_size",
     "memory_utilization_ratio",
     "travel_time_per_edge",
+    "average_travel_time_per_edge",
+    "total_one_way_travel_time",
+    "battery_capacity_multiplier",
+    "optimistic_minimum_energy",
+    "battery_capacity",
+    "battery_headroom",
+    "terrain_profiles",
+    "terrain_edges",
     "corruption_level",
     "safe_dataset_count",
     "unsafe_dataset_count",
@@ -55,8 +63,14 @@ RESULT_FIELDS = [
     "reported_plan_length",
     "reported_elapsed_time",
     "plan_makespan",
+    "travel_time_in_plan",
     "estimated_travel_time",
     "stationary_time",
+    "energy_used",
+    "battery_remaining",
+    "battery_utilization_ratio",
+    "battery_feasible",
+    "route_metrics_valid",
     "action_count",
     "move_actions",
     "collect_actions",
@@ -79,15 +93,139 @@ def mean_or_none(values: list[float]) -> float | None:
     return statistics.mean(values)
 
 
+def calculate_plan_resource_metrics(
+    metadata: dict[str, Any],
+    planner_result: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Calculate travel and battery use from explicit move actions.
+
+    For the battery model, each traversed edge uses its own terrain
+    travel time and energy cost.
+    """
+
+    if planner_result.get("status") != "solved":
+        return {
+            "travel_time_in_plan": None,
+            "energy_used": None,
+            "battery_remaining": None,
+            "battery_utilization_ratio": None,
+            "battery_feasible": None,
+            "route_metrics_valid": None,
+        }
+
+    model = metadata.get("model", "original")
+
+    move_edges: list[tuple[str, str]] = []
+
+    for action_record in planner_result.get("actions", []):
+        action_text = str(
+            action_record.get("action", "")
+        ).strip().lower()
+
+        if not (
+            action_text.startswith("(start-move ")
+            or action_text.startswith("(move ")
+        ):
+            continue
+
+        parts = action_text.strip("()").split()
+
+        if len(parts) >= 4:
+            move_edges.append((parts[2], parts[3]))
+
+    if model != "battery":
+        travel_time_per_edge = float(
+            metadata.get("travel_time_per_edge", 0.0)
+            or 0.0
+        )
+
+        return {
+            "travel_time_in_plan": (
+                len(move_edges) * travel_time_per_edge
+            ),
+            "energy_used": None,
+            "battery_remaining": None,
+            "battery_utilization_ratio": None,
+            "battery_feasible": None,
+            "route_metrics_valid": True,
+        }
+
+    edge_lookup: dict[
+        tuple[str, str],
+        dict[str, float],
+    ] = {}
+
+    for edge in metadata.get("terrain_edges", []):
+        start = str(edge["from"]).lower()
+        end = str(edge["to"]).lower()
+
+        values = {
+            "travel_time": float(edge["travel_time"]),
+            "energy_cost": float(edge["energy_cost"]),
+        }
+
+        edge_lookup[(start, end)] = values
+        edge_lookup[(end, start)] = values
+
+    travel_time_in_plan = 0.0
+    energy_used = 0.0
+    route_metrics_valid = True
+
+    for start, end in move_edges:
+        edge = edge_lookup.get((start, end))
+
+        if edge is None:
+            route_metrics_valid = False
+            continue
+
+        travel_time_in_plan += edge["travel_time"]
+        energy_used += edge["energy_cost"]
+
+    battery_capacity = metadata.get("battery_capacity")
+
+    battery_remaining = (
+        float(battery_capacity) - energy_used
+        if battery_capacity is not None
+        and route_metrics_valid
+        else None
+    )
+
+    battery_utilization_ratio = (
+        energy_used / float(battery_capacity)
+        if battery_capacity is not None
+        and float(battery_capacity) > 0
+        and route_metrics_valid
+        else None
+    )
+
+    battery_feasible = (
+        battery_remaining >= -1e-9
+        if battery_remaining is not None
+        else None
+    )
+
+    return {
+        "travel_time_in_plan": travel_time_in_plan,
+        "energy_used": energy_used,
+        "battery_remaining": battery_remaining,
+        "battery_utilization_ratio": (
+            battery_utilization_ratio
+        ),
+        "battery_feasible": battery_feasible,
+        "route_metrics_valid": route_metrics_valid,
+    }
+
+
 def create_result_row(
     metadata: dict[str, Any],
     planner_result: dict[str, Any],
     problem_path: Path,
     metadata_path: Path,
 ) -> dict[str, Any]:
-    """Combine problem metadata and planner metrics into one CSV row."""
+    """Combine problem metadata and planner metrics."""
 
-    datasets = metadata["datasets"]
+    datasets = metadata.get("datasets", [])
 
     dataset_sizes = [
         dataset["size"]
@@ -109,8 +247,13 @@ def create_result_row(
         for dataset in datasets
     ]
 
-    memory_capacity = metadata["memory_capacity"]
-    total_dataset_size = metadata["total_dataset_size"]
+    memory_capacity = float(
+        metadata.get("memory_capacity", 0) or 0
+    )
+
+    total_dataset_size = float(
+        metadata.get("total_dataset_size", 0) or 0
+    )
 
     memory_utilization_ratio = (
         total_dataset_size / memory_capacity
@@ -120,29 +263,51 @@ def create_result_row(
 
     model = metadata.get("model", "original")
 
-    travel_time_per_edge = float(
-        metadata.get("travel_time_per_edge", 0.0)
-    )
-
     move_actions = int(
         planner_result.get("move_actions", 0) or 0
     )
 
-    plan_makespan = planner_result.get("plan_makespan")
-
-    estimated_travel_time = (
-        move_actions * travel_time_per_edge
-        if model == "timed"
-        else 0.0
+    plan_makespan = planner_result.get(
+        "plan_makespan"
     )
+
+    resource_metrics = calculate_plan_resource_metrics(
+        metadata=metadata,
+        planner_result=planner_result,
+    )
+
+    travel_time_in_plan = resource_metrics[
+        "travel_time_in_plan"
+    ]
 
     stationary_time = (
         max(
             0.0,
-            float(plan_makespan) - estimated_travel_time,
+            float(plan_makespan)
+            - float(travel_time_in_plan),
         )
         if plan_makespan is not None
+        and travel_time_in_plan is not None
         else None
+    )
+
+    terrain_edges = metadata.get(
+        "terrain_edges",
+        [],
+    )
+
+    terrain_profiles = [
+        edge.get("profile")
+        for edge in terrain_edges
+    ]
+
+    travel_time_per_edge = metadata.get(
+        "travel_time_per_edge"
+    )
+
+    average_travel_time_per_edge = metadata.get(
+        "average_travel_time_per_edge",
+        travel_time_per_edge,
     )
 
     return {
@@ -160,26 +325,72 @@ def create_result_row(
             else None
         ),
         "travel_time_per_edge": travel_time_per_edge,
-        "corruption_level": metadata["corruption_level"],
-        "safe_dataset_count": metadata["safe_dataset_count"],
-        "unsafe_dataset_count": metadata["unsafe_dataset_count"],
+        "average_travel_time_per_edge": (
+            average_travel_time_per_edge
+        ),
+        "total_one_way_travel_time": metadata.get(
+            "total_one_way_travel_time"
+        ),
+        "battery_capacity_multiplier": metadata.get(
+            "battery_capacity_multiplier"
+        ),
+        "optimistic_minimum_energy": metadata.get(
+            "optimistic_minimum_energy"
+        ),
+        "battery_capacity": metadata.get(
+            "battery_capacity"
+        ),
+        "battery_headroom": metadata.get(
+            "battery_headroom"
+        ),
+        "terrain_profiles": json.dumps(
+            terrain_profiles
+        ),
+        "terrain_edges": json.dumps(
+            terrain_edges
+        ),
+        "corruption_level": metadata[
+            "corruption_level"
+        ],
+        "safe_dataset_count": metadata.get(
+            "safe_dataset_count",
+            0,
+        ),
+        "unsafe_dataset_count": metadata.get(
+            "unsafe_dataset_count",
+            0,
+        ),
         "all_datasets_theoretically_safe": (
-            metadata["unsafe_dataset_count"] == 0
+            metadata.get("unsafe_dataset_count", 0)
+            == 0
         ),
         "dataset_sizes": json.dumps(dataset_sizes),
         "encoding_times": json.dumps(encoding_times),
-        "corruption_margins": json.dumps(corruption_margins),
+        "corruption_margins": json.dumps(
+            corruption_margins
+        ),
         "loss_times": json.dumps(loss_times),
-        "status": planner_result.get("status", "error"),
-        "solved": planner_result.get("solved", False),
-        "planner": planner_result.get("planner", ""),
+        "status": planner_result.get(
+            "status",
+            "error",
+        ),
+        "solved": planner_result.get(
+            "solved",
+            False,
+        ),
+        "planner": planner_result.get(
+            "planner",
+            "",
+        ),
         "timeout_seconds": planner_result.get(
             "timeout_seconds"
         ),
         "wall_runtime_seconds": planner_result.get(
             "wall_runtime_seconds"
         ),
-        "return_code": planner_result.get("return_code"),
+        "return_code": planner_result.get(
+            "return_code"
+        ),
         "reported_plan_length": planner_result.get(
             "reported_plan_length"
         ),
@@ -187,15 +398,54 @@ def create_result_row(
             "reported_elapsed_time"
         ),
         "plan_makespan": plan_makespan,
-        "estimated_travel_time": round(
-            estimated_travel_time,
-            6,
+        "travel_time_in_plan": (
+            round(travel_time_in_plan, 6)
+            if travel_time_in_plan is not None
+            else None
+        ),
+        "estimated_travel_time": (
+            round(travel_time_in_plan, 6)
+            if travel_time_in_plan is not None
+            else None
         ),
         "stationary_time": (
             round(stationary_time, 6)
             if stationary_time is not None
             else None
         ),
+        "energy_used": (
+            round(resource_metrics["energy_used"], 6)
+            if resource_metrics["energy_used"]
+            is not None
+            else None
+        ),
+        "battery_remaining": (
+            round(
+                resource_metrics["battery_remaining"],
+                6,
+            )
+            if resource_metrics["battery_remaining"]
+            is not None
+            else None
+        ),
+        "battery_utilization_ratio": (
+            round(
+                resource_metrics[
+                    "battery_utilization_ratio"
+                ],
+                6,
+            )
+            if resource_metrics[
+                "battery_utilization_ratio"
+            ] is not None
+            else None
+        ),
+        "battery_feasible": resource_metrics[
+            "battery_feasible"
+        ],
+        "route_metrics_valid": resource_metrics[
+            "route_metrics_valid"
+        ],
         "action_count": planner_result.get(
             "action_count",
             0,
@@ -228,7 +478,6 @@ def create_result_row(
             "",
         ),
     }
-
 
 def load_existing_instance_ids(
     results_path: Path,
@@ -281,11 +530,11 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "--model",
-        choices=["original", "timed"],
+        choices=["original", "timed", "battery"],
         default="original",
         help=(
-            "Planning model to evaluate. "
-            "Default: original."
+            "Planning model to evaluate: original, timed, "
+            "or battery. Default: original."
         ),
     )
 
@@ -423,7 +672,12 @@ def main() -> int:
 
     if arguments.domain is not None:
         domain_path = arguments.domain.resolve()
-    elif arguments.model == "timed":
+    elif arguments.model == "battery":
+        domain_path = Path(
+            "planning_models/pddl_plus/"
+            "domain-memory-rover-battery.pddl"
+        ).resolve()
+    elif arguments.model in {"timed", "battery"}:
         domain_path = Path(
             "planning_models/pddl_plus/"
             "domain-memory-rover-experimental.pddl"

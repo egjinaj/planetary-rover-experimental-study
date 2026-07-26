@@ -1,30 +1,62 @@
 {
-  "dataset_counts": [3, 5, 7],
-
+  "dataset_counts": [
+    2,
+    3,
+    4
+  ],
   "memory_ratios": {
-    "low": 0.35,
-    "medium": 0.60,
-    "high": 1.00
+    "low": 0.45,
+    "medium": 0.7,
+    "high": 1.0
   },
-
   "dataset_size": {
     "min": 2,
     "max": 6
   },
-
   "encoding_time": {
     "min": 2,
     "max": 5
   },
-
-  "travel_time_per_edge": 2.0,
-
+  "terrain_profiles": [
+    {
+      "name": "easy",
+      "travel_time": 1.5,
+      "energy_cost": 2
+    },
+    {
+      "name": "moderate",
+      "travel_time": 2.0,
+      "energy_cost": 3
+    },
+    {
+      "name": "rocky",
+      "travel_time": 2.5,
+      "energy_cost": 4
+    },
+    {
+      "name": "steep",
+      "travel_time": 3.0,
+      "energy_cost": 5
+    }
+  ],
   "corruption_margin_choices": {
-    "low": [2, 3, 4, 5],
-    "medium": [-1, 1, 2, 3],
-    "high": [-2, -1, 1, 2]
+    "low": [
+      10,
+      12,
+      14
+    ],
+    "medium": [
+      6,
+      8,
+      10
+    ],
+    "high": [
+      3,
+      4,
+      5
+    ]
   },
-
   "encoding_rate": 1.0,
-  "corruption_rate": 1.0
+  "corruption_rate": 1.0,
+  "battery_capacity": 40
 }

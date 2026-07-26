@@ -1,4 +1,4 @@
-(define (domain memory-rover-experimental)
+(define (domain memory-rover-battery)
 
   (:requirements
     :strips
@@ -43,6 +43,11 @@
     (used-memory ?r - rover)
     (memory-capacity ?r - rover)
 
+    ;; Rover energy
+    (battery-level ?r - rover)
+    (battery-capacity ?r - rover)
+    (travel-energy-cost ?from ?to - location)
+
     ;; Timed movement
     (travel-progress ?r - rover)
     (travel-time ?from ?to - location)
@@ -73,6 +78,10 @@
       (at ?r ?from)
       (connected ?from ?to)
       (not (travelling ?r))
+      (>=
+        (battery-level ?r)
+        (travel-energy-cost ?from ?to)
+      )
     )
 
     :effect (and
@@ -80,6 +89,10 @@
       (travelling ?r)
       (moving ?r ?from ?to)
       (assign (travel-progress ?r) 0)
+      (decrease
+        (battery-level ?r)
+        (travel-energy-cost ?from ?to)
+      )
     )
   )
 
