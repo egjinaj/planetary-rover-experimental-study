@@ -1,0 +1,20 @@
+{
+  "status": "batch_complete",
+  "results_file": "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/experiments/results/battery_final_unseen.csv",
+  "requested_instances": 135,
+  "completed_instances": 135,
+  "solved": 107,
+  "unsolvable": 25,
+  "timeout": 3,
+  "error": 0,
+  "unknown": 0,
+  "skipped": 0,
+  "mean_wall_runtime_seconds": 3.517835,
+  "total_batch_runtime_seconds": 476.805581,
+  "runs_per_condition": 5,
+  "seed_start": 10,
+  "model": "battery",
+  "domain": "/mnt/c/Users/Endri/Desktop/planetary-rover-experimental-study/planning_models/pddl_plus/domain-memory-rover-battery.pddl",
+  "planner": "sat-hadd",
+  "timeout_seconds": 30.0
+}

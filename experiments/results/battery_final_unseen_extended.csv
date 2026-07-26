@@ -1,0 +1,4 @@
+instance_id,status,wall_runtime_seconds,plan_makespan,action_count,move_actions,collect_actions,offload_actions,reported_plan_length,reported_elapsed_time
+rover-battery-n4-mem-low-corr-low-seed-12,unsolvable,73.7278,,0,0,0,0,,
+rover-battery-n4-mem-low-corr-low-seed-14,unsolvable,77.297805,,0,0,0,0,,
+rover-battery-n4-mem-high-corr-low-seed-13,solved,35.325328,23.0,16,8,4,4,51,23.0
