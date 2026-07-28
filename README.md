@@ -185,10 +185,7 @@ planetary-rover-experimental-study/
 ├── notebooks/
 │   └── battery_rover_experiment_analysis.ipynb
 ├── paper/
-│   ├── rover_planning_research_paper.tex
 │   ├── rover_planning_research_paper.pdf
-│   ├── references.bib
-│   └── figures/
 ├── planning_models/
 │   └── pddl_plus/
 ├── ros2_ws/
