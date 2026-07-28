@@ -1,119 +1,81 @@
-<div align="center">
-
 # Battery-Constrained Planetary Rover Planning
 
-### PDDL+ · ENHSP · ROS 2 Jazzy · Python · Jupyter
+This repository contains a reproducible PDDL+ study of a planetary rover operating with limited onboard memory, a fixed battery budget, terrain-dependent travel costs, and scientific data that degrades over time.
 
-A reproducible experimental framework for studying how **onboard memory**,  
-**mission size**, and **time-dependent data corruption** affect autonomous rover planning under a finite battery budget.
+The project combines:
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![ROS 2](https://img.shields.io/badge/ROS%202-Jazzy-22314E?logo=ros&logoColor=white)
-![Planning](https://img.shields.io/badge/Planning-PDDL%2B-7A3E9D)
-![Planner](https://img.shields.io/badge/Planner-ENHSP-E67E22)
-![Final experiment](https://img.shields.io/badge/Final%20experiment-135%20instances-2E8B57)
-![Battery](https://img.shields.io/badge/Battery-40%20units-4C8C2B)
+- a PDDL+ rover domain;
+- deterministic mission generation;
+- automated ENHSP execution and output parsing;
+- a 135-instance final experiment;
+- an executed Jupyter notebook with statistical analysis;
+- a ROS 2 service and client;
+- an IEEE-style research paper.
 
-</div>
+## Research question
 
----
+**How do onboard memory, mission size, and time-dependent data degradation affect the feasibility, efficiency, and planning difficulty of a battery-constrained rover mission?**
 
-## Project overview
+## Mission model
 
-A planetary rover must travel across terrain, collect scientific datasets, encode them, keep them in limited onboard memory, return to base, and offload them before they are lost through time-dependent corruption.
+The rover travels from a base station to a sequence of science sites. At each site, it may collect and encode a dataset. Collected data occupies onboard memory and must be returned to base before corruption reaches its loss threshold.
 
-The final model adds a finite battery and terrain-dependent movement costs. A valid plan must therefore satisfy three interacting requirements:
+The final model includes:
 
-```text
-data must be encoded and offloaded before corruption
-+
-stored data must fit in onboard memory
-+
-the rover must retain enough energy for every movement
-```
+- timed bidirectional movement;
+- four terrain profiles with different travel times and energy costs;
+- continuous encoding progress;
+- continuous data corruption;
+- limited onboard memory;
+- a fixed 40-unit battery;
+- collection, movement, arrival, encoding-completion, data-loss, and offload events;
+- validation of route metrics and battery use.
 
-### Research question
-
-> **How do onboard memory capacity, the number of scientific datasets, and time-dependent data degradation affect mission feasibility, generated-plan efficiency, and computational difficulty in battery-constrained planetary-rover planning with PDDL+?**
-
----
-
-## From course assignment to experimental study
-
-| Earlier AI for Robotics II model | Final experimental framework |
-|---|---|
-| One manually tested PDDL+ rover problem | Reproducible problem generation across controlled conditions |
-| Instantaneous movement | Timed movement using an action, continuous process, and arrival event |
-| Constant travel properties | Seeded terrain with different travel times and energy costs |
-| Memory and corruption only | Memory, corruption, timed travel, terrain, and finite battery |
-| Individual planner runs | Automated factorial batch execution |
-| Manual output inspection | Structured JSON/CSV parsing and validation |
-| No statistical evaluation | Executed Jupyter notebook, figures, tables, tests, and effect sizes |
-| No external interface | ROS 2 service/client and notebook demonstration |
-
-Timed movement is represented as:
+Movement is represented by an action, a continuous process, and an arrival event:
 
 ```text
 start-move action
-        ↓
+        |
+        v
 rover-travel process
-        ↓
+        |
+        v
 arrive event
 ```
 
-Encoding and corruption continue to evolve while the rover is travelling.
-
----
-
-## Final rover model
-
-The final PDDL+ model includes:
-
-- timed bidirectional movement;
-- terrain-dependent travel duration;
-- terrain-dependent movement-energy cost;
-- a fixed battery capacity of **40 energy units**;
-- numeric onboard memory;
-- variable dataset sizes;
-- continuous encoding progress;
-- continuous corruption growth;
-- automatic encoding-completion, arrival, and data-loss events;
-- collection and offloading actions;
-- a total-time minimization metric.
-
-Battery is consumed by movement. Time affects encoding and corruption, while extra returns to base increase both travel and energy use.
-
----
+Battery is consumed only by movement. Encoding and corruption continue while the rover is travelling.
 
 ## Experimental design
 
-The model was calibrated using seeds `0–4`, frozen, and then evaluated on unseen seeds `10–14`.
+The model was developed and checked with seeds `0-4`. After the configuration was frozen, the final experiment was run on unseen seeds `10-14`.
 
-| Factor | Final values |
+| Factor | Values |
 |---|---|
 | Dataset count | 2, 3, 4 |
-| Memory level | Low, medium, high |
-| Memory ratios | 0.45, 0.70, 1.00 |
-| Corruption level | Low, medium, high |
+| Memory level | low, medium, high |
+| Memory ratio | 0.45, 0.70, 1.00 |
+| Corruption level | low, medium, high |
 | Final seeds | 10, 11, 12, 13, 14 |
 | Battery capacity | 40 energy units |
-| Terrain profiles | Easy, moderate, rocky, steep |
+| Terrain profiles | easy, moderate, rocky, steep |
 | Planner | ENHSP `sat-hadd` |
 | Standard timeout | 30 seconds |
-| Selective classification timeout | 120 seconds |
-| Final instances | **135** |
+| Classification timeout | 120 seconds |
+| Final instances | 135 |
+
+The 135 missions come from:
 
 ```text
 3 dataset counts
-× 3 memory levels
-× 3 corruption levels
-× 5 unseen seeds
-= 135 final experiments
+x 3 memory levels
+x 3 corruption levels
+x 5 final seeds
+= 135 missions
 ```
 
-### Timeout policy
+### Timeout handling
 
-The original 30-second outcome is retained for computational-performance analysis. Only standard timeout cases are rerun with a 120-second limit to obtain a final feasibility classification.
+The original 30-second runs are kept for runtime analysis. Only the three timeout cases were rerun with a 120-second limit to obtain a final solved or unsolvable label.
 
 | Outcome | Standard 30-second run | Final classification |
 |---|---:|---:|
@@ -121,48 +83,41 @@ The original 30-second outcome is retained for computational-performance analysi
 | Unsolvable | 25 | 27 |
 | Timeout | 3 | 0 |
 
-A timeout is never treated as proof that a mission is unsolvable.
+A timeout is not treated as evidence that a mission is unsolvable.
 
----
+## Main results
 
-## Final results
-
-<p align="center">
-  <img src="experiments/plots/battery_final/success_by_dataset_count.png" width="48%" alt="Mission success by dataset count">
-  <img src="experiments/plots/battery_final/success_by_memory.png" width="48%" alt="Mission success by memory level">
-</p>
+### Mission success by factor
 
 <p align="center">
-  <img src="experiments/plots/battery_final/success_dataset_memory_interaction.png" width="48%" alt="Dataset count and memory interaction">
-  <img src="experiments/plots/battery_final/runtime_by_dataset_count_log.png" width="48%" alt="Planner runtime by dataset count">
+  <img src="experiments/plots/battery_final/success_rates_wilson_95.png" width="74%" alt="Mission success with Wilson intervals">
 </p>
 
-<p align="center">
-  <img src="experiments/plots/battery_final/battery_remaining_by_memory.png" width="48%" alt="Remaining battery by memory">
-  <img src="experiments/plots/battery_final/status_standard_vs_classified.png" width="48%" alt="Standard and classified outcomes">
-</p>
+Mission success decreased as the workload increased:
 
-### Main findings
-
-#### Mission size strongly reduced feasibility
-
-| Datasets | Solved | Unsolvable | Success |
+| Dataset count | Solved | Unsolvable | Success rate |
 |---:|---:|---:|---:|
-| 2 | 45 | 0 | **100%** |
-| 3 | 36 | 9 | **80%** |
-| 4 | 27 | 18 | **60%** |
+| 2 | 45 | 0 | 100% |
+| 3 | 36 | 9 | 80% |
+| 4 | 27 | 18 | 60% |
 
-Mean standard planner runtime increased from approximately **0.40 s** for two datasets to **9.36 s** for four datasets.
+Memory showed the strongest feasibility effect:
 
-#### Memory was the strongest feasibility factor
-
-| Memory | Solved | Unsolvable | Success |
+| Memory level | Solved | Unsolvable | Success rate |
 |---|---:|---:|---:|
-| Low | 21 | 24 | **46.7%** |
-| Medium | 42 | 3 | **93.3%** |
-| High | 45 | 0 | **100%** |
+| Low | 21 | 24 | 46.7% |
+| Medium | 42 | 3 | 93.3% |
+| High | 45 | 0 | 100% |
 
-The interaction is especially clear for larger missions:
+All three corruption levels produced an 80% success rate in the tested ranges.
+
+### Interaction between mission size and memory
+
+<p align="center">
+  <img src="experiments/plots/battery_final/success_interaction_heatmap.png" width="66%" alt="Mission success across dataset count and memory">
+</p>
+
+The memory effect depends on mission size:
 
 | Mission size | Low memory | Medium memory | High memory |
 |---:|---:|---:|---:|
@@ -170,117 +125,92 @@ The interaction is especially clear for larger missions:
 | 3 datasets | 40% | 100% | 100% |
 | 4 datasets | 0% | 80% | 100% |
 
-#### Corruption severity changed search behaviour more than feasibility
+Small missions do not reveal a storage bottleneck. As the number of datasets grows, limited memory forces extra returns to base and increases both energy use and exposure to data degradation.
 
-Each corruption level produced an overall **80% success rate** in the final unseen experiment. However, mean standard planner runtime decreased from approximately **6.25 s** under low corruption to **1.01 s** under high corruption.
+### Planner runtime
 
-This indicates that tighter corruption constraints can reduce temporal search freedom, even though they do not necessarily change the final number of feasible missions in this experiment.
+<p align="center">
+  <img src="experiments/plots/battery_final/runtime_summary_by_dataset_count.png" width="68%" alt="Planner runtime by dataset count">
+</p>
 
-#### Statistical evidence
+| Dataset count | Median runtime | 90th percentile | Mean runtime |
+|---:|---:|---:|---:|
+| 2 | 0.384 s | 0.449 s | 0.398 s |
+| 3 | 0.528 s | 1.755 s | 0.797 s |
+| 4 | 7.315 s | 25.345 s | 9.358 s |
 
-Exploratory tests found:
+The increase from three to four datasets is substantial. All three standard timeouts occurred in four-dataset missions.
 
-- a significant association between dataset count and feasibility, with Cramér's V ≈ **0.41**;
-- a significant and stronger association between memory level and feasibility, with Cramér's V ≈ **0.59**;
-- no observed association between corruption level and feasibility in the final sample;
-- a strong dataset-count effect on standard planner runtime;
-- large matched-memory effects on movements, energy use, and makespan for missions solved under all three memory levels.
+### Battery margin
 
-Full tables are available in:
+<p align="center">
+  <img src="experiments/plots/battery_final/battery_remaining_by_dataset_count.png" width="68%" alt="Battery remaining by dataset count">
+</p>
+
+Among solved missions, the average remaining battery fell from 21.73 units for two datasets to 8.44 units for three and 1.70 units for four. The largest solved missions therefore operated close to the 40-unit battery limit.
+
+### Movement energy and makespan
+
+<p align="center">
+  <img src="experiments/plots/battery_final/energy_vs_makespan_scatter.png" width="68%" alt="Movement energy and generated-plan makespan">
+</p>
+
+Plans that use more movement energy generally also have a longer makespan because both quantities increase with travel. The planner is satisficing, so these values describe the generated plans and are not guaranteed global optima.
+
+## Statistical summary
+
+The notebook reports exploratory statistical tests and effect sizes:
+
+- dataset count was associated with feasibility, with Cramer's V = 0.408;
+- memory level had the strongest feasibility association, with Cramer's V = 0.593;
+- corruption level showed no feasibility association in the final sample;
+- dataset count had a large effect on standard planner runtime, with epsilon-squared = 0.750;
+- matched missions showed large memory effects on movement, energy use, and makespan.
+
+The complete tables are stored in:
 
 ```text
 experiments/results/tables/battery_final/
 ```
 
----
+## Repository structure
 
-## System architecture
-
-```mermaid
-flowchart LR
-    A[Battery experiment configuration] --> B[Reproducible problem generator]
-    B --> C[PDDL+ mission and JSON metadata]
-    C --> D[ENHSP sat-hadd]
-    D --> E[Planner output parser]
-    E --> F[CSV and JSON results]
-    F --> G[Jupyter analysis]
-    G --> H[Plots, tables, and statistics]
-
-    I[ROS 2 client] --> J[ROS 2 experiment service]
-    J --> B
-    E --> J
-    J --> I
+```text
+planetary-rover-experimental-study/
+├── experiments/
+│   ├── config/
+│   ├── scripts/
+│   ├── results/
+│   └── plots/
+├── notebooks/
+│   └── battery_rover_experiment_analysis.ipynb
+├── paper/
+│   ├── rover_planning_research_paper.tex
+│   ├── rover_planning_research_paper.pdf
+│   ├── references.bib
+│   └── figures/
+├── planning_models/
+│   └── pddl_plus/
+├── ros2_ws/
+│   └── src/
+└── README.md
 ```
 
-The batch system and ROS 2 service reuse the same generator and planner runner rather than duplicating planning logic.
-
----
-
-## Repository map
-
-| Path | Purpose |
-|---|---|
-| `planning_models/pddl_plus/` | Original, timed, and battery-constrained PDDL+ domains |
-| `experiments/config/` | Experiment configurations |
-| `experiments/scripts/` | Problem generator, ENHSP runner, and batch runner |
-| `experiments/results/` | Standard, classified, and extended results |
-| `experiments/results/tables/battery_final/` | Final exported analysis tables |
-| `experiments/plots/battery_final/` | Final 300-dpi figures |
-| `notebooks/` | Executed analysis notebooks |
-| `ros2_ws/src/rover_experiment_interfaces/` | Custom ROS 2 service definition |
-| `ros2_ws/src/rover_experiment_ros/` | ROS 2 experiment service and client |
-
----
-
-## Important files
-
-### Final PDDL+ model
+Important files:
 
 ```text
 planning_models/pddl_plus/domain-memory-rover-battery.pddl
-```
-
-### Frozen final configuration
-
-```text
 experiments/config/experiment_config_battery.json
-```
-
-### Experiment pipeline
-
-```text
 experiments/scripts/problem_generator.py
 experiments/scripts/planner_runner.py
 experiments/scripts/batch_experiment.py
-```
-
-### Final results
-
-```text
 experiments/results/battery_final_unseen.csv
 experiments/results/battery_final_unseen_classified.csv
-experiments/results/battery_final_unseen_extended.csv
-```
-
-### Final executed notebook
-
-```text
 notebooks/battery_rover_experiment_analysis.ipynb
+paper/rover_planning_research_paper.pdf
 ```
 
-### ROS 2 integration
-
-```text
-ros2_ws/src/rover_experiment_interfaces/srv/RunExperiment.srv
-ros2_ws/src/rover_experiment_ros/rover_experiment_ros/experiment_service.py
-ros2_ws/src/rover_experiment_ros/rover_experiment_ros/experiment_client.py
-```
-
----
-
-## Quick start
-
-### Requirements
+## Requirements
 
 - Ubuntu 24.04 or WSL
 - Python 3.12
@@ -289,28 +219,16 @@ ros2_ws/src/rover_experiment_ros/rover_experiment_ros/experiment_client.py
 - ROS 2 Jazzy
 - JupyterLab
 
-<details>
-<summary><strong>1. Create the Python environment</strong></summary>
+Create the Python environment:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-
 python3 -m pip install --upgrade pip
-python3 -m pip install \
-  jupyterlab \
-  pandas \
-  numpy \
-  matplotlib \
-  scipy \
-  nbformat \
-  setuptools
+python3 -m pip install jupyterlab pandas numpy matplotlib scipy nbformat setuptools
 ```
 
-</details>
-
-<details>
-<summary><strong>2. Generate one battery-constrained mission</strong></summary>
+## Generate one mission
 
 ```bash
 python3 experiments/scripts/problem_generator.py \
@@ -323,12 +241,7 @@ python3 experiments/scripts/problem_generator.py \
   --output-dir experiments/generated_problems/example_battery_run
 ```
 
-The generator creates a PDDL+ problem and a matching JSON metadata file.
-
-</details>
-
-<details>
-<summary><strong>3. Run ENHSP on the generated mission</strong></summary>
+## Run ENHSP
 
 ```bash
 python3 experiments/scripts/planner_runner.py \
@@ -339,12 +252,7 @@ python3 experiments/scripts/planner_runner.py \
   --timeout 30
 ```
 
-The runner returns structured JSON containing the planning status, runtime, makespan, explicit action counts, movements, collections, offloads, and parsed temporal information.
-
-</details>
-
-<details>
-<summary><strong>4. Reproduce the final 135-instance experiment</strong></summary>
+## Reproduce the final batch
 
 ```bash
 python3 experiments/scripts/batch_experiment.py \
@@ -359,14 +267,22 @@ python3 experiments/scripts/batch_experiment.py \
   --results experiments/results/battery_final_unseen.csv
 ```
 
-</details>
+## Run the notebook
 
-<details>
-<summary><strong>5. Run the final Jupyter analysis</strong></summary>
+Start the ROS 2 service in one terminal:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source ros2_ws/install/setup.bash
+export ROVER_PROJECT_ROOT="$PWD"
+ros2 run rover_experiment_ros experiment_service
+```
+
+Start JupyterLab in another terminal:
 
 ```bash
 source .venv/bin/activate
-python3 -m jupyter lab
+jupyter lab
 ```
 
 Open:
@@ -378,18 +294,14 @@ notebooks/battery_rover_experiment_analysis.ipynb
 Then select:
 
 ```text
-Kernel → Restart Kernel and Run All Cells
+Kernel -> Restart Kernel and Run All Cells
 ```
 
-The notebook validates the final dataset, produces figures and tables, performs exploratory statistical tests, and runs a ROS 2 battery demonstration when the service is active.
+The notebook validates the final data, generates the five main figures, performs the statistical tests, exports the result tables, and sends one ROS 2 request.
 
-</details>
+## ROS 2 interface
 
----
-
-## 🤖 ROS 2 integration
-
-### Build the workspace
+Build the workspace:
 
 ```bash
 cd ros2_ws
@@ -399,25 +311,18 @@ source install/setup.bash
 cd ..
 ```
 
-### Start the service
-
-From the repository root:
+Run the service:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 source ros2_ws/install/setup.bash
 export ROVER_PROJECT_ROOT="$PWD"
-
 ros2 run rover_experiment_ros experiment_service
 ```
 
-### Send a request
-
-In a second terminal:
+Send a request from a second terminal:
 
 ```bash
-cd /path/to/planetary-rover-experimental-study
-
 source /opt/ros/jazzy/setup.bash
 source ros2_ws/install/setup.bash
 
@@ -429,104 +334,47 @@ ros2 run rover_experiment_ros experiment_client \
   --timeout 30
 ```
 
-Example response:
+The response includes planner status, runtime, makespan, action counts, battery capacity, energy used, battery remaining, and battery feasibility.
 
-```json
-{
-  "instance_id": "rover-battery-n3-mem-medium-corr-medium-seed-0",
-  "status": "solved",
-  "solved": true,
-  "wall_runtime_seconds": 0.476625,
-  "plan_makespan": 28.0,
-  "action_count": 16,
-  "move_actions": 10,
-  "battery_capacity": 40.0,
-  "energy_used": 26.0,
-  "battery_remaining": 14.0,
-  "battery_feasible": true,
-  "error_message": ""
-}
+## Paper
+
+The final IEEE-style paper is available at:
+
+```text
+paper/rover_planning_research_paper.pdf
 ```
 
----
+Build it from source with:
 
-## 📏 Recorded metrics
-
-| Metric | Meaning |
-|---|---|
-| `status` | Solved, unsolvable, timeout, error, or unknown |
-| `classification_status` | Final solved/unsolvable classification after selective reruns |
-| `wall_runtime_seconds` | Real ENHSP execution time under the standard budget |
-| `plan_makespan` | Simulated completion time of a generated plan |
-| `action_count` | Explicit planner-selected actions |
-| `move_actions` | Explicit rover movement actions |
-| `travel_time_in_plan` | Sum of terrain-specific travel durations |
-| `energy_used` | Sum of movement-energy costs |
-| `battery_remaining` | Battery capacity minus generated-plan energy use |
-| `battery_utilization_ratio` | Fraction of the 40-unit battery consumed |
-| `memory_utilization_ratio` | Total dataset volume divided by memory capacity |
-
-ENHSP's reported plan length is stored separately because it may include temporal happenings and automatic events, not only explicit planner-selected actions.
-
----
+```bash
+cd paper
+./build_paper.sh
+```
 
 ## Reproducibility
 
-Mission generation is deterministic for the same:
+Mission generation is deterministic for the same dataset count, memory level, corruption level, seed, and configuration. Dataset properties, terrain, and corruption margins use separate deterministic random streams so that changing one factor does not regenerate unrelated mission properties.
 
-```text
-dataset count
-memory level
-corruption level
-seed
-configuration
-```
-
-Independent seeded random-number generators preserve fair comparisons:
-
-- dataset sizes and encoding times depend on the mission seed;
-- terrain depends on the same seed but a separate deterministic stream;
-- corruption margins depend on the condition and seed;
-- changing only memory or corruption does not silently regenerate unrelated mission properties.
-
-The calibration seeds `0–4` are separated from final evaluation seeds `10–14`. The frozen model is tagged:
+The frozen final model is tagged:
 
 ```text
 battery-model-frozen-v1
 ```
 
----
-
 ## Limitations
 
-- Missions, terrain, and datasets are synthetic.
-- The map is a bidirectional linear chain.
-- Corruption is deterministic rather than probabilistic.
-- Battery is consumed by movement only.
-- A single rover and a single ENHSP configuration are evaluated.
-- The planner is satisficing, so generated-plan metrics are not guaranteed global optima.
-- Five final seeds are used per experimental condition.
-- Runtime includes Java and planner startup overhead.
-- The controlled factorial experiment is limited to 2–4 datasets; larger PDDL+ instances showed reduced planner coverage during calibration.
+- The terrain map is a bidirectional line.
+- Missions and terrain are synthetic.
+- Data degradation is deterministic.
+- Battery is consumed only by movement.
+- One rover, one base, and one planner configuration are studied.
+- Five unseen seeds are used per condition.
+- Planner runtime includes Java and startup overhead.
+- Generated plans are satisficing and are not guaranteed optimal.
 - The project does not control a physical rover.
-
----
-
-## Possible extensions
-
-- probabilistic degradation;
-- energy use for sensing, encoding, and communication;
-- nonlinear maps and alternative paths;
-- solar charging and communication windows;
-- multiple rovers;
-- planner and heuristic comparison;
-- larger experiment campaigns;
-- Gazebo or physical-rover integration.
-
----
 
 ## Author
 
-**Endri Gjinaj**  
+Endri Gjinaj  
 Master's Degree in Robotics Engineering  
 University of Genoa
