@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Battery-Constrained Planetary Rover Planning
+# Battery-Constrained Planetary Rover Planning
 
 ### PDDL+ · ENHSP · ROS 2 Jazzy · Python · Jupyter
 
@@ -18,7 +18,7 @@ A reproducible experimental framework for studying how **onboard memory**,
 
 ---
 
-## 🌍 Project overview
+## Project overview
 
 A planetary rover must travel across terrain, collect scientific datasets, encode them, keep them in limited onboard memory, return to base, and offload them before they are lost through time-dependent corruption.
 
@@ -38,7 +38,7 @@ the rover must retain enough energy for every movement
 
 ---
 
-## ✨ From course assignment to experimental study
+## From course assignment to experimental study
 
 | Earlier AI for Robotics II model | Final experimental framework |
 |---|---|
@@ -65,7 +65,7 @@ Encoding and corruption continue to evolve while the rover is travelling.
 
 ---
 
-## 🔋 Final rover model
+## Final rover model
 
 The final PDDL+ model includes:
 
@@ -85,7 +85,7 @@ Battery is consumed by movement. Time affects encoding and corruption, while ext
 
 ---
 
-## 🧪 Experimental design
+## Experimental design
 
 The model was calibrated using seeds `0–4`, frozen, and then evaluated on unseen seeds `10–14`.
 
@@ -125,7 +125,7 @@ A timeout is never treated as proof that a mission is unsolvable.
 
 ---
 
-## 📊 Final results
+## Final results
 
 <p align="center">
   <img src="experiments/plots/battery_final/success_by_dataset_count.png" width="48%" alt="Mission success by dataset count">
@@ -194,7 +194,7 @@ experiments/results/tables/battery_final/
 
 ---
 
-## 🧠 System architecture
+## System architecture
 
 ```mermaid
 flowchart LR
@@ -216,7 +216,7 @@ The batch system and ROS 2 service reuse the same generator and planner runner r
 
 ---
 
-## 🗂️ Repository map
+## Repository map
 
 | Path | Purpose |
 |---|---|
@@ -232,7 +232,7 @@ The batch system and ROS 2 service reuse the same generator and planner runner r
 
 ---
 
-## 🔑 Important files
+## Important files
 
 ### Final PDDL+ model
 
@@ -278,7 +278,7 @@ ros2_ws/src/rover_experiment_ros/rover_experiment_ros/experiment_client.py
 
 ---
 
-## ⚡ Quick start
+## Quick start
 
 ### Requirements
 
@@ -470,7 +470,7 @@ ENHSP's reported plan length is stored separately because it may include tempora
 
 ---
 
-## ♻️ Reproducibility
+## Reproducibility
 
 Mission generation is deterministic for the same:
 
@@ -497,7 +497,7 @@ battery-model-frozen-v1
 
 ---
 
-## ⚠️ Limitations
+## Limitations
 
 - Missions, terrain, and datasets are synthetic.
 - The map is a bidirectional linear chain.
@@ -512,7 +512,7 @@ battery-model-frozen-v1
 
 ---
 
-## 🛠️ Possible extensions
+## Possible extensions
 
 - probabilistic degradation;
 - energy use for sensing, encoding, and communication;
@@ -525,7 +525,7 @@ battery-model-frozen-v1
 
 ---
 
-## 👤 Author
+## Author
 
 **Endri Gjinaj**  
 Master's Degree in Robotics Engineering  
