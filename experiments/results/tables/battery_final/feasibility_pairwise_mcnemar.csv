@@ -1,0 +1,10 @@
+factor,level_1,level_2,level_1_only_solved,level_2_only_solved,discordant_blocks,p_value,holm_adjusted_p
+Dataset count,2,3,9,0,9,0.00390625,0.0078125
+Dataset count,2,4,18,0,18,7.62939453125e-06,2.288818359375e-05
+Dataset count,3,4,9,0,9,0.00390625,0.0078125
+Memory level,low,medium,0,21,21,9.5367431640625e-07,1.9073486328125e-06
+Memory level,low,high,0,24,24,1.1920928955078125e-07,3.5762786865234375e-07
+Memory level,medium,high,0,3,3,0.25,0.25
+Degradation margin,low,medium,0,0,0,1.0,1.0
+Degradation margin,low,high,0,0,0,1.0,1.0
+Degradation margin,medium,high,0,0,0,1.0,1.0

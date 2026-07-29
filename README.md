@@ -54,7 +54,7 @@ The model was developed and checked with seeds `0-4`. After the configuration wa
 | Dataset count | 2, 3, 4 |
 | Memory level | low, medium, high |
 | Memory ratio | 0.45, 0.70, 1.00 |
-| Corruption level | low, medium, high |
+| Degradation margin | wide (10-14), medium (6-10), tight (3-5) |
 | Final seeds | 10, 11, 12, 13, 14 |
 | Battery capacity | 40 energy units |
 | Terrain profiles | easy, moderate, rocky, steep |
@@ -68,7 +68,7 @@ The 135 missions come from:
 ```text
 3 dataset counts
 x 3 memory levels
-x 3 corruption levels
+x 3 degradation-margin conditions
 x 5 final seeds
 = 135 missions
 ```
@@ -109,7 +109,9 @@ Memory showed the strongest feasibility effect:
 | Medium | 42 | 3 | 93.3% |
 | High | 45 | 0 | 100% |
 
-All three corruption levels produced an 80% success rate in the tested ranges.
+All three degradation-margin conditions produced an 80% success rate in the
+tested ranges. Corruption still evolved in every collected dataset; the tested
+change in temporal slack did not change the final solved count.
 
 ### Interaction between mission size and memory
 
@@ -163,7 +165,7 @@ The notebook reports exploratory statistical tests and effect sizes:
 
 - dataset count was associated with feasibility, with Cramer's V = 0.408;
 - memory level had the strongest feasibility association, with Cramer's V = 0.593;
-- corruption level showed no feasibility association in the final sample;
+- degradation margin showed no feasibility association in the final sample;
 - dataset count had a large effect on standard planner runtime, with epsilon-squared = 0.750;
 - matched missions showed large memory effects on movement, energy use, and makespan.
 
@@ -185,7 +187,10 @@ planetary-rover-experimental-study/
 ├── notebooks/
 │   └── battery_rover_experiment_analysis.ipynb
 ├── paper/
+│   ├── references.bib
+│   ├── rover_planning_research_paper.tex
 │   ├── rover_planning_research_paper.pdf
+│   └── build_paper.sh
 ├── planning_models/
 │   └── pddl_plus/
 ├── ros2_ws/
@@ -204,6 +209,8 @@ experiments/scripts/batch_experiment.py
 experiments/results/battery_final_unseen.csv
 experiments/results/battery_final_unseen_classified.csv
 notebooks/battery_rover_experiment_analysis.ipynb
+paper/rover_planning_research_paper.tex
+paper/references.bib
 paper/rover_planning_research_paper.pdf
 ```
 
@@ -215,6 +222,8 @@ paper/rover_planning_research_paper.pdf
 - ENHSP
 - ROS 2 Jazzy
 - JupyterLab
+- LaTeX with `latexmk` and the `IEEEtran` class (`texlive-publishers`
+  on Ubuntu)
 
 Create the Python environment:
 
@@ -350,7 +359,12 @@ cd paper
 
 ## Reproducibility
 
-Mission generation is deterministic for the same dataset count, memory level, corruption level, seed, and configuration. Dataset properties, terrain, and corruption margins use separate deterministic random streams so that changing one factor does not regenerate unrelated mission properties.
+Mission generation is deterministic for the same dataset count, memory level,
+degradation-margin condition, seed, and configuration. The implementation keeps
+the original `corruption_level` field and `--corruption` command-line flag.
+Dataset properties, terrain, and corruption margins use separate deterministic
+random streams so that changing one factor does not regenerate unrelated
+mission properties.
 
 The frozen final model is tagged:
 

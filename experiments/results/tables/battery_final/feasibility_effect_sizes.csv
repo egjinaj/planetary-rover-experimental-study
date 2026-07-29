@@ -1,4 +1,0 @@
-factor,statistic,p_value,effect_size_name,effect_size,sample_size
-Memory level,47.5,4.847368706270258e-11,Cramer's V,0.5931710140017395,135
-Dataset count,22.5,1.3007297654067617e-05,Cramer's V,0.408248290463863,135
-Corruption level,0.0,1.0,Cramer's V,0.0,135

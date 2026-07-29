@@ -1,0 +1,10 @@
+analysis,level_1,level_2,statistic,p_value,median_paired_difference,matched_blocks,holm_adjusted_p
+Matched memory comparison: move_actions,low,medium,0.0,0.014305878435429648,0.0,21,0.014305878435429648
+Matched memory comparison: move_actions,low,high,0.0,1.0212453018907238e-05,2.0,21,3.063735905672172e-05
+Matched memory comparison: move_actions,medium,high,0.0,5.470626957768549e-05,2.0,21,0.00010941253915537099
+Matched memory comparison: energy_used,low,medium,0.0,0.014305878435429648,0.0,21,0.014305878435429648
+Matched memory comparison: energy_used,low,high,0.0,3.454810139105629e-05,6.0,21,0.00010364430417316887
+Matched memory comparison: energy_used,medium,high,0.0,9.18976414368629e-05,6.0,21,0.0001837952828737258
+Matched memory comparison: plan_makespan,low,medium,0.0,0.014699148008254984,0.0,21,0.014699148008254984
+Matched memory comparison: plan_makespan,low,high,0.0,5.693659480654205e-05,8.0,21,0.00017080978441962616
+Matched memory comparison: plan_makespan,medium,high,6.5,0.00017678988035949112,6.0,21,0.00035357976071898224

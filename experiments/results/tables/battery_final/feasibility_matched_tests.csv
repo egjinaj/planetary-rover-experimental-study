@@ -1,0 +1,4 @@
+analysis,test,statistic,p_value,degrees_of_freedom,effect_size_name,effect_size,sample_size,notes
+Matched feasibility difference: dataset_count,Cochran's Q,27.0,1.3709590863840842e-06,2,,,45,18 discordant matched blocks.
+Matched feasibility difference: memory_level,Cochran's Q,42.75,5.211412487888531e-10,2,,,45,24 discordant matched blocks.
+Matched feasibility difference: corruption_level,Cochran's Q,0.0,1.0,2,,,45,0 discordant matched blocks.
