@@ -439,32 +439,35 @@ All exported statistical tables are in
 
 ```text
 planetary-rover-experimental-study/
-â”œâ”€â”€ experiments/
-â”‚   â”œâ”€â”€ config/
-â”‚   â”‚   â””â”€â”€ experiment_config_battery.json
-â”‚   â”œâ”€â”€ generated_problems/          generated PDDL+ instances
-â”‚   â”œâ”€â”€ raw_outputs/                 raw ENHSP output
-â”‚   â”œâ”€â”€ scripts/
-â”‚   â”‚   â”œâ”€â”€ problem_generator.py
-â”‚   â”‚   â”œâ”€â”€ planner_runner.py
-â”‚   â”‚   â””â”€â”€ batch_experiment.py
-â”‚   â”œâ”€â”€ results/
-â”‚   â”‚   â”œâ”€â”€ battery_final_unseen.csv
-â”‚   â”‚   â”œâ”€â”€ battery_final_unseen_classified.csv
-â”‚   â”‚   â””â”€â”€ tables/battery_final/
-â”‚   â””â”€â”€ plots/battery_final/         the five paper figures
-â”œâ”€â”€ notebooks/
-â”‚   â””â”€â”€ battery_rover_experiment_analysis.ipynb
-â”œâ”€â”€ planning_models/
-â”‚   â”œâ”€â”€ classical/                   early baseline models
-â”‚   â””â”€â”€ pddl_plus/
-â”‚       â””â”€â”€ domain-memory-rover-battery.pddl
-â”œâ”€â”€ ros2_ws/src/
-â”‚   â”œâ”€â”€ rover_experiment_interfaces/
-â”‚   â””â”€â”€ rover_experiment_ros/
-â”œâ”€â”€ paper/
-â”‚   â””â”€â”€ rover_planning_research_paper.pdf
-â””â”€â”€ README.md
+|-- experiments/
+|   |-- config/
+|   |   `-- experiment_config_battery.json
+|   |-- generated_problems/          # Generated PDDL+ instances
+|   |-- raw_outputs/                 # Raw ENHSP output
+|   |-- scripts/
+|   |   |-- problem_generator.py
+|   |   |-- planner_runner.py
+|   |   `-- batch_experiment.py
+|   |-- results/
+|   |   |-- battery_final_unseen.csv
+|   |   |-- battery_final_unseen_classified.csv
+|   |   `-- tables/
+|   |       `-- battery_final/
+|   `-- plots/
+|       `-- battery_final/           # Five data figures used in the paper
+|-- notebooks/
+|   `-- battery_rover_experiment_analysis.ipynb
+|-- planning_models/
+|   |-- classical/                   # Early baseline models
+|   `-- pddl_plus/
+|       `-- domain-memory-rover-battery.pddl
+|-- ros2_ws/
+|   `-- src/
+|       |-- rover_experiment_interfaces/
+|       `-- rover_experiment_ros/
+|-- paper/
+|   `-- rover_planning_research_paper.pdf
+`-- README.md
 ```
 
 The final paper is committed as a PDF. LaTeX source is not required to read or
